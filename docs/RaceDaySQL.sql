@@ -40,3 +40,18 @@ CREATE TABLE Categories (
     Name NVARCHAR(100) NOT NULL, -- e.g., 'Senior', 'Under 20', '10km'
     CONSTRAINT FK_Categories_Events FOREIGN KEY (EventId) REFERENCES Events(EventId) ON DELETE CASCADE
 );
+
+-- 6. Create Enrolments Table (With UNIQUE composite registration check)
+CREATE TABLE Enrolments (
+    EnrolmentId INT IDENTITY(1,1) PRIMARY KEY,
+    ParticipantId INT NOT NULL,
+    EventId INT NOT NULL,
+    CategoryId INT NOT NULL,
+    EnrolmentDate DATETIME DEFAULT GETDATE(),
+    Status NVARCHAR(50) NOT NULL DEFAULT 'Pending',
+    CONSTRAINT FK_Enrolments_Participant FOREIGN KEY (ParticipantId) REFERENCES Users(UserId),
+    CONSTRAINT FK_Enrolments_Events FOREIGN KEY (EventId) REFERENCES Events(EventId),
+    CONSTRAINT FK_Enrolments_Categories FOREIGN KEY (CategoryId) REFERENCES Categories(CategoryId),
+    CONSTRAINT UC_Participant_Event UNIQUE (ParticipantId, EventId), -- Enforces single registration [5]
+    CONSTRAINT CHK_EnrolmentStatus CHECK (Status IN ('Pending', 'Confirmed'))
+);
