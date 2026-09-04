@@ -16,3 +16,19 @@ CREATE TABLE Users (
     CreatedAt DATETIME DEFAULT GETDATE(),
     CONSTRAINT FK_Users_Roles FOREIGN KEY (RoleId) REFERENCES Roles(RoleId)
 );
+
+-- 4. Create Events Table
+CREATE TABLE Events (
+    EventId INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(150) NOT NULL,
+    Description NVARCHAR(MAX) NOT NULL,
+    Date DATETIME NOT NULL,
+    Location NVARCHAR(256) NOT NULL,
+    Distance DECIMAL(5,2) NOT NULL,
+    EventType NVARCHAR(50) NOT NULL,
+    BannerImageUrl NVARCHAR(500) NULL,
+    OrganiserId INT NOT NULL,
+    CONSTRAINT FK_Events_Organiser FOREIGN KEY (OrganiserId) REFERENCES Users(UserId),
+    CONSTRAINT CHK_EventType CHECK (EventType IN ('Run', 'Walk', 'Cycle')), -- Domain validity [5]
+    CONSTRAINT CHK_Distance CHECK (Distance > 0.0) -- Prevents negative/zero values
+);
