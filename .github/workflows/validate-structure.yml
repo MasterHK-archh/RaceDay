@@ -1,0 +1,43 @@
+name: Validate repository structure
+
+on:
+  push:
+    paths-ignore:
+      - 'README.md'
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate-structure:
+    name: Validate repository structure
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate /docs folder exists and contains minimum files
+        env:
+          MIN_DOC_FILES: 3
+        run: |
+          set -euo pipefail
+
+          echo "Checking for docs/ directory..."
+          if [ ! -d "docs" ]; then
+            echo "::error ::Required directory 'docs/' not found in the repository root."
+            ls -la || true
+            exit 1
+          fi
+
+          # Count regular files under docs/ (recursively)
+          FILE_COUNT=$(find docs -type f | wc -l | tr -d '[:space:]')
+          echo "Found $FILE_COUNT files under docs/"
+
+          if [ "$FILE_COUNT" -lt "$MIN_DOC_FILES" ]; then
+            echo "::error ::The 'docs/' directory must contain at least $MIN_DOC_FILES files (found $FILE_COUNT)."
+            echo "Files present:"
+            find docs -type f -print || true
+            exit 1
+          fi
+
+          echo "Repository structure validation passed: docs/ exists and contains >= $MIN_DOC_FILES files."
