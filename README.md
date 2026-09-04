@@ -41,7 +41,7 @@ Review the verification count printouts in the results pane to confirm successfu
 Video Presentation & Demo Walkthrough
 An unlisted YouTube video showing the live execution and design decisions can be found here:
 
-YouTube Walkthrough Link: [INSERT YOUR YOUTUBE LINK HERE]
+YouTube Walkthrough Link: [https://youtu.be/Yz-9xFBUSk4?si=jKmqczVvGNdflqna]
 The presentation covers:
 
 System overview and South African community road racing background.
