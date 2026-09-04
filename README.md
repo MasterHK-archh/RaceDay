@@ -48,3 +48,6 @@ System overview and South African community road racing background.
 Structural decisions made in Section A (ERD cardinality and normalization).
 Detailed breakdown of Section B's Endpoint Plan (routing, access security, and expected responses).
 Live execution of raceday-db-script.sql on a clean SQL instance in SSMS, showing successful data counts.
+
+<img width="816" height="155" alt="image" src="https://github.com/user-attachments/assets/b9d2065b-497c-4bb2-b72d-066b6821f142" />
+
