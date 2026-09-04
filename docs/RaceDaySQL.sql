@@ -55,3 +55,13 @@ CREATE TABLE Enrolments (
     CONSTRAINT UC_Participant_Event UNIQUE (ParticipantId, EventId), -- Enforces single registration [5]
     CONSTRAINT CHK_EnrolmentStatus CHECK (Status IN ('Pending', 'Confirmed'))
 );
+
+-- 7. Create Results Table (Enforces 1-to-1 via UNIQUE EnrolmentId)
+CREATE TABLE Results (
+    ResultId INT IDENTITY(1,1) PRIMARY KEY,
+    EnrolmentId INT NOT NULL UNIQUE, -- Strict 1-to-1 cardinality [1, 7]
+    FinishTime NVARCHAR(50) NOT NULL, -- Formatted HH:MM:SS [18]
+    FinishPosition INT NOT NULL,
+    CONSTRAINT FK_Results_Enrolments FOREIGN KEY (EnrolmentId) REFERENCES Enrolments(EnrolmentId) ON DELETE CASCADE,
+    CONSTRAINT CHK_FinishPosition CHECK (FinishPosition > 0) -- Logical domain check
+);
