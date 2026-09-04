@@ -65,3 +65,6 @@ CREATE TABLE Results (
     CONSTRAINT FK_Results_Enrolments FOREIGN KEY (EnrolmentId) REFERENCES Enrolments(EnrolmentId) ON DELETE CASCADE,
     CONSTRAINT CHK_FinishPosition CHECK (FinishPosition > 0) -- Logical domain check
 );
+
+-- Seed Core Roles
+INSERT INTO Roles (RoleName) VALUES ('Organiser'), ('Participant');
