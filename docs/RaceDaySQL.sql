@@ -91,3 +91,10 @@ INSERT INTO Categories (EventId, Name) VALUES (1, 'Under 20 (Junior)'), (1, 'Sen
 INSERT INTO Categories (EventId, Name) VALUES (2, 'Elite Cyclists'), (2, 'Open Category 109km'), (2, 'Junior Cyclists');
 -- Gauteng Walk Categories
 INSERT INTO Categories (EventId, Name) VALUES (3, 'Fun Walk 5km'), (3, 'Senior Citizen Walk 5km');
+
+-- Seed Enrolments (Join mapping table) [21]
+INSERT INTO Enrolments (ParticipantId, EventId, CategoryId, EnrolmentDate, Status) VALUES
+(3, 1, 2, '2026-08-15 10:00:00', 'Confirmed'), -- Jabu joins Soweto Run
+(4, 2, 5, '2026-08-16 11:30:00', 'Confirmed'), -- Sarah joins CT Cycle
+(3, 3, 7, '2026-08-17 09:15:00', 'Confirmed'); -- Jabu joins Gauteng Walk
+
