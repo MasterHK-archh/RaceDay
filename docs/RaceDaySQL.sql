@@ -82,3 +82,12 @@ INSERT INTO Events (Name, Description, Date, Location, Distance, EventType, Bann
 ('Soweto Half Marathon', 'An exciting running event through the historic streets of Soweto.', '2026-11-01 06:00:00', 'Soweto, Johannesburg', 21.10, 'Run', 'https://racedaystorage.blob.core.windows.net/banners/soweto.jpg', 1),
 ('Cape Town Cycle Classic', 'A breathtaking cycle tour along the Cape peninsula.', '2026-10-12 07:00:00', 'Cape Town', 109.00, 'Cycle', 'https://racedaystorage.blob.core.windows.net/banners/ct-cycle.jpg', 2),
 ('Gauteng Community Walk', 'A fun walk for the whole family promoting healthy living.', '2026-09-20 08:00:00', 'Pretoria', 5.00, 'Walk', 'https://racedaystorage.blob.core.windows.net/banners/gauteng-walk.jpg', 1);
+
+
+-- Seed Event-Specific Categories [21]
+-- Soweto Marathon Categories
+INSERT INTO Categories (EventId, Name) VALUES (1, 'Under 20 (Junior)'), (1, 'Senior (20-39)'), (1, 'Veterans (40+)');
+-- Cape Town Cycle Categories
+INSERT INTO Categories (EventId, Name) VALUES (2, 'Elite Cyclists'), (2, 'Open Category 109km'), (2, 'Junior Cyclists');
+-- Gauteng Walk Categories
+INSERT INTO Categories (EventId, Name) VALUES (3, 'Fun Walk 5km'), (3, 'Senior Citizen Walk 5km');
