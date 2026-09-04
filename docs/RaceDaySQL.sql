@@ -98,3 +98,7 @@ INSERT INTO Enrolments (ParticipantId, EventId, CategoryId, EnrolmentDate, Statu
 (4, 2, 5, '2026-08-16 11:30:00', 'Confirmed'), -- Sarah joins CT Cycle
 (3, 3, 7, '2026-08-17 09:15:00', 'Confirmed'); -- Jabu joins Gauteng Walk
 
+-- Seed Results (Performance capture logs) [18]
+INSERT INTO Results (EnrolmentId, FinishTime, FinishPosition) VALUES
+(1, '01:45:23', 42), -- Jabu's Soweto Half Marathon Result
+(2, '03:12:05', 128); -- Sarah's Cape Town Cycle Result
