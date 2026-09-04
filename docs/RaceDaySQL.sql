@@ -32,3 +32,11 @@ CREATE TABLE Events (
     CONSTRAINT CHK_EventType CHECK (EventType IN ('Run', 'Walk', 'Cycle')), -- Domain validity [5]
     CONSTRAINT CHK_Distance CHECK (Distance > 0.0) -- Prevents negative/zero values
 );
+
+-- 5. Create Categories Table (With ON DELETE CASCADE)
+CREATE TABLE Categories (
+    CategoryId INT IDENTITY(1,1) PRIMARY KEY,
+    EventId INT NOT NULL,
+    Name NVARCHAR(100) NOT NULL, -- e.g., 'Senior', 'Under 20', '10km'
+    CONSTRAINT FK_Categories_Events FOREIGN KEY (EventId) REFERENCES Events(EventId) ON DELETE CASCADE
+);
