@@ -76,3 +76,9 @@ INSERT INTO Users (Email, PasswordHash, FirstName, LastName, RoleId, ProfilePict
 ('organiser_chantal@raceday.co.za', 'SECURE_HASHED_PASS_CHANTAL', 'Chantal', 'Du Toit', 1, NULL),
 ('participant_jabu@raceday.co.za', 'SECURE_HASHED_PASS_JABU', 'Jabu', 'Adele', 2, 'https://racedaystorage.blob.core.windows.net/profiles/jabu.jpg'),
 ('participant_sarah@raceday.co.za', 'SECURE_HASHED_PASS_SARAH', 'Sarah', 'Smith', 2, 'https://racedaystorage.blob.core.windows.net/profiles/sarah.jpg');
+
+-- Seed Events (3 Events: Run, Cycle, Walk) [21, 22]
+INSERT INTO Events (Name, Description, Date, Location, Distance, EventType, BannerImageUrl, OrganiserId) VALUES
+('Soweto Half Marathon', 'An exciting running event through the historic streets of Soweto.', '2026-11-01 06:00:00', 'Soweto, Johannesburg', 21.10, 'Run', 'https://racedaystorage.blob.core.windows.net/banners/soweto.jpg', 1),
+('Cape Town Cycle Classic', 'A breathtaking cycle tour along the Cape peninsula.', '2026-10-12 07:00:00', 'Cape Town', 109.00, 'Cycle', 'https://racedaystorage.blob.core.windows.net/banners/ct-cycle.jpg', 2),
+('Gauteng Community Walk', 'A fun walk for the whole family promoting healthy living.', '2026-09-20 08:00:00', 'Pretoria', 5.00, 'Walk', 'https://racedaystorage.blob.core.windows.net/banners/gauteng-walk.jpg', 1);
