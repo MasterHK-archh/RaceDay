@@ -68,3 +68,11 @@ CREATE TABLE Results (
 
 -- Seed Core Roles
 INSERT INTO Roles (RoleName) VALUES ('Organiser'), ('Participant');
+
+-- Seed Users (2 Organisers, 2 Participants) [21]
+-- Password hashes represent the secure hashing implementation planned for Part 2 [12]
+INSERT INTO Users (Email, PasswordHash, FirstName, LastName, RoleId, ProfilePictureUrl) VALUES
+('organiser_sipho@raceday.co.za', 'SECURE_HASHED_PASS_SIPHO', 'Sipho', 'Khumalo', 1, NULL),
+('organiser_chantal@raceday.co.za', 'SECURE_HASHED_PASS_CHANTAL', 'Chantal', 'Du Toit', 1, NULL),
+('participant_jabu@raceday.co.za', 'SECURE_HASHED_PASS_JABU', 'Jabu', 'Adele', 2, 'https://racedaystorage.blob.core.windows.net/profiles/jabu.jpg'),
+('participant_sarah@raceday.co.za', 'SECURE_HASHED_PASS_SARAH', 'Sarah', 'Smith', 2, 'https://racedaystorage.blob.core.windows.net/profiles/sarah.jpg');
