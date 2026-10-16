@@ -1,0 +1,83 @@
+﻿using System.Net;
+using System.Net.Http.Json;
+
+namespace RaceDayAPI.Tests
+{
+    public class EventManagementTests : TestBase
+    {
+        [Fact]
+        public async Task CreateEvent_AsOrganiser_Succeeds()
+        {
+            await AuthHelper.AsOrganiserSiphoAsync(Client);
+
+            var resp = await Client.PostAsJsonAsync("/api/events", new
+            {
+                name = "Test Marathon",
+                description = "A test event",
+                date = DateTime.UtcNow.AddMonths(1),
+                location = "Test City",
+                distance = 42.2m,
+                eventType = "Run"
+            });
+
+            Assert.Equal(HttpStatusCode.Created, resp.StatusCode);
+        }
+
+        [Fact]
+        public async Task CreateEvent_AsParticipant_ReturnsForbidden()
+        {
+            await AuthHelper.AsParticipantJabuAsync(Client);
+
+            var resp = await Client.PostAsJsonAsync("/api/events", new
+            {
+                name = "Test Marathon",
+                description = "A test event",
+                date = DateTime.UtcNow.AddMonths(1),
+                location = "Test City",
+                distance = 42.2m,
+                eventType = "Run"
+            });
+
+            Assert.Equal(HttpStatusCode.Forbidden, resp.StatusCode);
+        }
+
+        [Fact]
+        public async Task CreateEvent_WithoutToken_ReturnsUnauthorized()
+        {
+            var resp = await Client.PostAsJsonAsync("/api/events", new
+            {
+                name = "Test Marathon",
+                description = "A test event",
+                date = DateTime.UtcNow.AddMonths(1),
+                location = "Test City",
+                distance = 42.2m,
+                eventType = "Run"
+            });
+
+            Assert.Equal(HttpStatusCode.Unauthorized, resp.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetEvents_AnonymousAllowed()
+        {
+            var resp = await Client.GetAsync("/api/events");
+            Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetMyEvents_AsOrganiser_Succeeds()
+        {
+            await AuthHelper.AsOrganiserSiphoAsync(Client);
+            var resp = await Client.GetAsync("/api/events/my");
+            Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetMyEvents_AsParticipant_ReturnsForbidden()
+        {
+            await AuthHelper.AsParticipantJabuAsync(Client);
+            var resp = await Client.GetAsync("/api/events/my");
+            Assert.Equal(HttpStatusCode.Forbidden, resp.StatusCode);
+        }
+    }
+}

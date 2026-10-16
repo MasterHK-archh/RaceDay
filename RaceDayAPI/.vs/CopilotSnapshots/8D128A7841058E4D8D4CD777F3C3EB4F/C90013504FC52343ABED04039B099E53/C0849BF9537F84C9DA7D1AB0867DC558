@@ -1,0 +1,105 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+
+namespace RaceDayAPI.Tests
+{
+    public class EnrolmentTests : TestBase
+    {
+        // ---------- Participant can enrol ----------
+
+        [Fact]
+        public async Task Enrol_AsParticipant_ReturnsCreated()
+        {
+            // Sarah (user 4) is not yet enrolled in Event 1
+            await AuthHelper.AsParticipantSarahAsync(Client);
+            var resp = await Client.PostAsJsonAsync("/api/enrolments",
+                new { eventId = 1, categoryId = 2 });
+
+            Assert.Equal(HttpStatusCode.Created, resp.StatusCode);
+        }
+
+        [Fact]
+        public async Task Enrol_IsCorrectlyRecorded_InMyEnrolments()
+        {
+            await AuthHelper.AsParticipantSarahAsync(Client);
+            await Client.PostAsJsonAsync("/api/enrolments", new { eventId = 1, categoryId = 2 });
+
+            var resp = await Client.GetAsync("/api/enrolments/my");
+            resp.EnsureSuccessStatusCode();
+
+            var list = await resp.Content.ReadFromJsonAsync<JsonElement>();
+            Assert.Contains(list.EnumerateArray(), e =>
+                e.GetProperty("eventId").GetInt32() == 1 &&
+                e.GetProperty("categoryId").GetInt32() == 2);
+        }
+
+        // ---------- Duplicate enrolment rejected ----------
+
+        [Fact]
+        public async Task Enrol_AlreadyEnrolled_ReturnsConflict()
+        {
+            // Jabu (user 3) is already enrolled in Event 1 in the seed data
+            await AuthHelper.AsParticipantJabuAsync(Client);
+            var resp = await Client.PostAsJsonAsync("/api/enrolments",
+                new { eventId = 1, categoryId = 2 });
+
+            Assert.Equal(HttpStatusCode.Conflict, resp.StatusCode);
+        }
+
+        // ---------- Role enforcement ----------
+
+        [Fact]
+        public async Task Enrol_Anonymous_ReturnsUnauthorized()
+        {
+            var resp = await Client.PostAsJsonAsync("/api/enrolments",
+                new { eventId = 1, categoryId = 2 });
+
+            Assert.Equal(HttpStatusCode.Unauthorized, resp.StatusCode);
+        }
+
+        [Fact]
+        public async Task Enrol_AsOrganiser_ReturnsForbidden()
+        {
+            await AuthHelper.AsOrganiserSiphoAsync(Client);
+            var resp = await Client.PostAsJsonAsync("/api/enrolments",
+                new { eventId = 1, categoryId = 2 });
+
+            Assert.Equal(HttpStatusCode.Forbidden, resp.StatusCode);
+        }
+
+        // ---------- Organiser-only listing ----------
+
+        [Fact]
+        public async Task ListAllEnrolments_AsOrganiser_ReturnsOk()
+        {
+            await AuthHelper.AsOrganiserSiphoAsync(Client);
+            var resp = await Client.GetAsync("/api/enrolments");
+            Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
+        }
+
+        [Fact]
+        public async Task ListAllEnrolments_AsParticipant_ReturnsForbidden()
+        {
+            await AuthHelper.AsParticipantJabuAsync(Client);
+            var resp = await Client.GetAsync("/api/enrolments");
+            Assert.Equal(HttpStatusCode.Forbidden, resp.StatusCode);
+        }
+
+        // ---------- Participant cannot see another participant's enrolment ----------
+
+        [Fact]
+        public async Task GetEnrolment_OtherParticipants_ReturnsForbidden()
+        {
+            // Enrolment 2 belongs to Sarah. Jabu tries to read it.
+            await AuthHelper.AsParticipantJabuAsync(Client);
+            var resp = await Client.GetAsync("/api/enrolments/2");
+            Assert.Equal(HttpStatusCode.Forbidden, resp.StatusCode);
+        }
+    }
+}

@@ -1,0 +1,92 @@
+﻿using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
+
+namespace RaceDayAPI.Tests
+{
+    public class EnrolmentTests : TestBase
+    {
+        [Fact]
+        public async Task EnrolParticipant_ValidData_Succeeds()
+        {
+            await AuthHelper.AsParticipantJabuAsync(Client);
+
+            var resp = await Client.PostAsJsonAsync("/api/enrolments", new
+            {
+                eventId = 1,
+                categoryId = 2,
+                status = "Confirmed"
+            });
+
+            Assert.Equal(HttpStatusCode.Created, resp.StatusCode);
+        }
+
+        [Fact]
+        public async Task EnrolParticipant_AsOrganiser_ReturnsForbidden()
+        {
+            await AuthHelper.AsOrganiserSiphoAsync(Client);
+
+            var resp = await Client.PostAsJsonAsync("/api/enrolments", new
+            {
+                eventId = 1,
+                categoryId = 2,
+                status = "Confirmed"
+            });
+
+            Assert.Equal(HttpStatusCode.Forbidden, resp.StatusCode);
+        }
+
+        [Fact]
+        public async Task EnrolParticipant_WithoutToken_ReturnsUnauthorized()
+        {
+            var resp = await Client.PostAsJsonAsync("/api/enrolments", new
+            {
+                eventId = 1,
+                categoryId = 2,
+                status = "Confirmed"
+            });
+
+            Assert.Equal(HttpStatusCode.Unauthorized, resp.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetMyEnrolments_AsParticipant_Succeeds()
+        {
+            await AuthHelper.AsParticipantJabuAsync(Client);
+
+            var resp = await Client.GetAsync("/api/enrolments/my");
+
+            Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetMyEnrolments_WithoutToken_ReturnsUnauthorized()
+        {
+            var resp = await Client.GetAsync("/api/enrolments/my");
+
+            Assert.Equal(HttpStatusCode.Unauthorized, resp.StatusCode);
+        }
+
+        [Fact]
+        public async Task EnrolSameEventTwice_ReturnsConflict()
+        {
+            await AuthHelper.AsParticipantJabuAsync(Client);
+
+            await Client.PostAsJsonAsync("/api/enrolments", new
+            {
+                eventId = 1,
+                categoryId = 2,
+                status = "Confirmed"
+            });
+
+            var resp = await Client.PostAsJsonAsync("/api/enrolments", new
+            {
+                eventId = 1,
+                categoryId = 3,
+                status = "Confirmed"
+            });
+
+            Assert.Equal(HttpStatusCode.Conflict, resp.StatusCode);
+        }
+    }
+}

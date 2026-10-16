@@ -1,0 +1,27 @@
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.VisualStudio.TestPlatform.TestHost;
+using RaceDayAPI.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+
+namespace RaceDayAPI.Tests
+{
+    public class CustomWebApplicationFactory : WebApplicationFactory<Program>
+    {
+        protected override void ConfigureWebHost(IWebHostBuilder builder)
+        {
+            builder.ConfigureServices(services =>
+            {
+                // Remove the app's in-memory DB registration
+                services.RemoveAll<DbContextOptions<RaceDayDbContext>>();
+                services.RemoveAll<DbContextOptions>();
+
+                // Add a fresh, uniquely-named in-memory DB per factory
+                services.AddDbContext<RaceDayDbContext>(o =>
+                    o.UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}"));
+            });
+        }
+    }
+}

@@ -1,0 +1,117 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http.Json;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace RaceDayAPI.Tests
+{
+    public class EventManagementTests : TestBase
+    {
+        private static object NewEventPayload() => new
+        {
+            name = "Test Race",
+            description = "A test event",
+            date = DateTime.UtcNow.AddDays(30),
+            location = "Johannesburg",
+            distance = 10.0m,
+            eventType = "Run"
+        };
+
+        // ---------- Viewing (public) ----------
+
+        [Fact]
+        public async Task GetEvents_Anonymous_ReturnsOk()
+        {
+            var resp = await Client.GetAsync("/api/events");
+            Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
+        }
+
+        // ---------- Anonymous cannot modify ----------
+
+        [Fact]
+        public async Task CreateEvent_Anonymous_ReturnsUnauthorized()
+        {
+            var resp = await Client.PostAsJsonAsync("/api/events", NewEventPayload());
+            Assert.Equal(HttpStatusCode.Unauthorized, resp.StatusCode);
+        }
+
+        // ---------- Participant cannot manage events ----------
+
+        [Fact]
+        public async Task CreateEvent_AsParticipant_ReturnsForbidden()
+        {
+            await AuthHelper.AsParticipantJabuAsync(Client);
+            var resp = await Client.PostAsJsonAsync("/api/events", NewEventPayload());
+            Assert.Equal(HttpStatusCode.Forbidden, resp.StatusCode);
+        }
+
+        // ---------- Organiser can manage their own events ----------
+
+        [Fact]
+        public async Task CreateEvent_AsOrganiser_ReturnsCreated()
+        {
+            await AuthHelper.AsOrganiserSiphoAsync(Client);
+            var resp = await Client.PostAsJsonAsync("/api/events", NewEventPayload());
+            Assert.Equal(HttpStatusCode.Created, resp.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetMyEvents_AsOrganiser_ReturnsOnlyOwnEvents()
+        {
+            await AuthHelper.AsOrganiserSiphoAsync(Client);
+            var resp = await Client.GetAsync("/api/events/my");
+
+            Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
+            var list = await resp.Content.ReadFromJsonAsync<List<Dictionary<string, object>>>();
+            // Sipho owns events 1 and 3 in seed data
+            Assert.Equal(2, list!.Count);
+        }
+
+        [Fact]
+        public async Task GetMyEvents_AsParticipant_ReturnsForbidden()
+        {
+            await AuthHelper.AsParticipantJabuAsync(Client);
+            var resp = await Client.GetAsync("/api/events/my");
+            Assert.Equal(HttpStatusCode.Forbidden, resp.StatusCode);
+        }
+
+        // ---------- Ownership: organiser cannot touch another organiser's event ----------
+
+        [Fact]
+        public async Task UpdateEvent_OtherOrganisersEvent_ReturnsForbidden()
+        {
+            // Sipho tries to update Chantal's event (EventId = 2)
+            await AuthHelper.AsOrganiserSiphoAsync(Client);
+            var resp = await Client.PutAsJsonAsync("/api/events/2", NewEventPayload());
+            Assert.Equal(HttpStatusCode.Forbidden, resp.StatusCode);
+        }
+
+        [Fact]
+        public async Task DeleteEvent_OtherOrganisersEvent_ReturnsForbidden()
+        {
+            await AuthHelper.AsOrganiserChantalAsync(Client);
+            // Chantal tries to delete Sipho's event (EventId = 1)
+            var resp = await Client.DeleteAsync("/api/events/1");
+            Assert.Equal(HttpStatusCode.Forbidden, resp.StatusCode);
+        }
+
+        [Fact]
+        public async Task UpdateEvent_OwnEvent_Succeeds()
+        {
+            await AuthHelper.AsOrganiserSiphoAsync(Client);
+            var resp = await Client.PutAsJsonAsync("/api/events/1", NewEventPayload());
+            Assert.Equal(HttpStatusCode.NoContent, resp.StatusCode);
+        }
+
+        [Fact]
+        public async Task DeleteEvent_OwnEvent_Succeeds()
+        {
+            await AuthHelper.AsOrganiserSiphoAsync(Client);
+            var resp = await Client.DeleteAsync("/api/events/3");
+            Assert.Equal(HttpStatusCode.NoContent, resp.StatusCode);
+        }
+    }
+}
