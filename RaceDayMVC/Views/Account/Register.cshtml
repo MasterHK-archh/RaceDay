@@ -1,0 +1,36 @@
+﻿@model RaceDayMVC.Models.RegisterRequest
+@{ ViewData["Title"] = "Register"; }
+
+<h2>Create Account</h2>
+
+<form asp-action="Register" method="post" class="col-md-6">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Password" class="form-label"></label>
+        <input asp-for="Password" type="password" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="FirstName" class="form-label"></label>
+        <input asp-for="FirstName" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="LastName" class="form-label"></label>
+        <input asp-for="LastName" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="RoleName" class="form-label"></label>
+        <select asp-for="RoleName" class="form-select">
+            <option value="">-- Choose a role --</option>
+            <option value="Participant">Participant</option>
+            <option value="Organiser">Organiser</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Register</button>
+    <a asp-action="Login" class="btn btn-link">Already have an account? Log in</a>
+</form>
