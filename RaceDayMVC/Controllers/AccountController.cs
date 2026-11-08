@@ -16,19 +16,28 @@ public class AccountController : Controller
     }
 
     [HttpGet]
-    public IActionResult Login() => View(new LoginRequest());
+    public IActionResult Login(string? returnUrl = null)
+    {
+        ViewData["ReturnUrl"] = returnUrl;
+        return View(new LoginRequest());
+    }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(LoginRequest req)
+    public async Task<IActionResult> Login(LoginRequest req, string? returnUrl = null)
     {
+        if (!ModelState.IsValid) return View(req);
+
         var (ok, error, data) = await _api.LoginAsync(req);
         if (!ok || data is null)
         {
-            ModelState.AddModelError("", error ?? "Login failed.");
+            ModelState.AddModelError("", ApiErrorHelper.Prettify(error));
             return View(req);
         }
+
         _user.SignIn(data);
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            return Redirect(returnUrl);
         return RedirectToAction("Index", "Home");
     }
 
@@ -39,12 +48,15 @@ public class AccountController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Register(RegisterRequest req)
     {
+        if (!ModelState.IsValid) return View(req);
+
         var (ok, error, data) = await _api.RegisterAsync(req);
         if (!ok || data is null)
         {
-            ModelState.AddModelError("", error ?? "Registration failed.");
+            ModelState.AddModelError("", ApiErrorHelper.Prettify(error));
             return View(req);
         }
+
         _user.SignIn(data);
         return RedirectToAction("Index", "Home");
     }

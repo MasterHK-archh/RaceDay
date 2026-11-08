@@ -3,20 +3,32 @@
     ViewData["Title"] = "Login";
 }
 
-<h2>Log In</h2>
+<div class="rd-auth-wrap">
+    <h2>Log In</h2>
 
-<form asp-action="Login" method="post" class="col-md-6">
-    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+    <form asp-action="Login" method="post" asp-route-returnUrl="@ViewData["ReturnUrl"]">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-    <div class="mb-3">
-        <label asp-for="Email" class="form-label"></label>
-        <input asp-for="Email" class="form-control" />
-    </div>
-    <div class="mb-3">
-        <label asp-for="Password" class="form-label"></label>
-        <input asp-for="Password" type="password" class="form-control" />
-    </div>
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label">Email</label>
+            <input asp-for="Email" class="form-control" autocomplete="email" />
+            <span asp-validation-for="Email" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Password" class="form-label">Password</label>
+            <input asp-for="Password" type="password" class="form-control" autocomplete="current-password" />
+            <span asp-validation-for="Password" class="text-danger small"></span>
+        </div>
 
-    <button type="submit" class="btn btn-primary">Log In</button>
-    <a asp-action="Register" class="btn btn-link">Need an account? Register</a>
-</form>
+        <button type="submit" class="btn btn-primary w-100">Log In</button>
+
+        <p class="text-center mt-3 mb-0 text-muted small">
+            Need an account?
+            <a asp-action="Register">Register</a>
+        </p>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
