@@ -1,0 +1,11 @@
+﻿@{
+    var pageName = Model as string ?? "This page";
+    ViewData["Title"] = "Coming soon";
+}
+
+<div class="rd-empty" style="padding-top: 5rem;">
+    <div class="rd-empty-icon">🚧</div>
+    <h1>@pageName</h1>
+    <p class="lead text-muted">This page is being built. Check back after the next chunk.</p>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-primary mt-3">Back to Home</a>
+</div>
