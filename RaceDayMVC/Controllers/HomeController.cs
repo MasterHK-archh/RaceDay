@@ -1,32 +1,23 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using RaceDayMVC.Models;
+using RaceDayMVC.Services;
 
-namespace RaceDayMVC.Controllers
+namespace RaceDayMVC.Controllers;
+
+public class HomeController : Controller
 {
-    public class HomeController : Controller
+    private readonly CurrentUser _user;
+    public HomeController(CurrentUser user) => _user = user;
+
+    public IActionResult Index()
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
-
-        public IActionResult Index()
-        {
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+        if (!_user.IsAuthenticated) return View();
+        if (_user.IsOrganiser) return RedirectToAction("Index", "Dashboard");
+        if (_user.IsParticipant) return RedirectToAction("Index", "Events");
+        return View();
     }
+
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Forbidden() => View();
+
+    public IActionResult Error() => View();
 }
