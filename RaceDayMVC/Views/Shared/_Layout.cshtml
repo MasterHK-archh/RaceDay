@@ -1,35 +1,93 @@
-﻿<!DOCTYPE html>
+﻿@using System.Security.Claims
+@{
+    var isAuth = !string.IsNullOrEmpty(Context.Session.GetString("JwtToken"));
+    var role = Context.Session.GetString("RoleName") ?? "";
+    var first = Context.Session.GetString("FirstName") ?? "";
+}
+@functions {
+    bool IsActive(string controller) =>
+        string.Equals(
+            ViewContext.RouteData.Values["controller"]?.ToString(),
+            controller, StringComparison.OrdinalIgnoreCase);
+    string NavClass(string controller) => IsActive(controller) ? "nav-link active" : "nav-link";
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - RaceDayMVC</title>
+    <title>@ViewData["Title"] · RaceDay</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/RaceDayMVC.styles.css" asp-append-version="true" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/raceday.css" asp-append-version="true" />
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg rd-navbar">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">RaceDayMVC</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <a class="navbar-brand rd-brand" asp-controller="Home" asp-action="Index">
+                    <span class="rd-brand-mark">RD</span> RaceDay
+                </a>
+                <button class="navbar-toggler" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#rdNav"
+                        aria-controls="rdNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        @if (Context.Session.GetString("JwtToken") is not null)
+
+                <div class="collapse navbar-collapse" id="rdNav">
+                    @* ---- Role-aware main navigation ---- *@
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                        @if (!isAuth)
                         {
                             <li class="nav-item">
-                                <span class="navbar-text ms-2">
-                                    Hi, @Context.Session.GetString("FirstName")
-                                    <span class="badge bg-secondary ms-1">@Context.Session.GetString("RoleName")</span>
+                                <a class="@NavClass("Events")" asp-controller="Events" asp-action="Index">Events</a>
+                            </li>
+                        }
+                        else if (role == "Participant")
+                        {
+                            <li class="nav-item">
+                                <a class="@NavClass("Events")" asp-controller="Events" asp-action="Index">Events</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="@NavClass("Enrolments")" asp-controller="Enrolments" asp-action="Index">My Enrolments</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="@NavClass("Results")" asp-controller="Results" asp-action="Index">My Results</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="@NavClass("Profile")" asp-controller="Profile" asp-action="Index">Profile</a>
+                            </li>
+                        }
+                        else if (role == "Organiser")
+                        {
+                            <li class="nav-item">
+                                <a class="@NavClass("Dashboard")" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="@NavClass("MyEvents")" asp-controller="MyEvents" asp-action="Index">My Events</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="@NavClass("Profile")" asp-controller="Profile" asp-action="Index">Profile</a>
+                            </li>
+                        }
+                    </ul>
+
+                    @* ---- Auth buttons ---- *@
+                    <ul class="navbar-nav">
+                        @if (isAuth)
+                        {
+                            <li class="nav-item d-flex align-items-center me-2">
+                                <span class="rd-user-pill">
+                                    Hi, @first <span class="badge ms-1">@role</span>
                                 </span>
                             </li>
                             <li class="nav-item">
                                 <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-link nav-link">Logout</button>
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-light">Logout</button>
                                 </form>
                             </li>
                         }
@@ -38,8 +96,8 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Account" asp-action="Login">Login</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Account" asp-action="Register">Register</a>
+                            <li class="nav-item ms-2">
+                                <a class="btn btn-sm btn-primary" asp-controller="Account" asp-action="Register">Register</a>
                             </li>
                         }
                     </ul>
@@ -47,20 +105,19 @@
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
+    <main role="main" class="container py-4">
+        @RenderBody()
+    </main>
+
+    <footer class="rd-footer">
         <div class="container">
-            &copy; 2026 - RaceDayMVC - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; @DateTime.Now.Year <strong>RaceDay</strong> · Built for people who move.
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -1,8 +1,42 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Welcome";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="rd-hero">
+    <h1>RaceDay</h1>
+    <p class="lead">
+        Discover upcoming runs, walks and cycles. Enrol in seconds. Track your results.
+        Organisers: create and manage your events, all in one place.
+    </p>
+    <div class="d-flex gap-3 justify-content-center">
+        <a class="btn btn-primary btn-lg px-4" asp-controller="Account" asp-action="Register">Get Started</a>
+        <a class="btn btn-outline-light btn-lg px-4" asp-controller="Account" asp-action="Login">I have an account</a>
+    </div>
+</div>
+
+<div class="row g-4 mt-2">
+    <div class="col-md-4">
+        <div class="rd-card">
+            <h3>🏃 Participants</h3>
+            <p class="text-muted">
+                Browse events, choose your category, enrol, and track your race history.
+            </p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="rd-card">
+            <h3>📋 Organisers</h3>
+            <p class="text-muted">
+                Create events, manage categories, confirm enrolments, and capture results.
+            </p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="rd-card">
+            <h3>🏆 Results</h3>
+            <p class="text-muted">
+                Every finisher's time and position, published by the organiser after race day.
+            </p>
+        </div>
+    </div>
 </div>
